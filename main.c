@@ -29,12 +29,49 @@ Consider your entire calibration document. What is the sum of all of the calibra
 
 #define MAX_LINE_LENGTH 100
 
+char get_number_from_string(const char str[]) {
+    if (strcmp(str, "one") == 0) {
+        return '1';
+    } else if (strcmp(str, "two") == 0) {
+        return '2';
+    } else if (strcmp(str, "three") == 0) {
+        return '3';
+    } else if (strcmp(str, "four") == 0) {
+        return '4';
+    } else if (strcmp(str, "five") == 0) {
+        return '5';
+    } else if (strcmp(str, "six") == 0) {
+        return '6';
+    } else if (strcmp(str, "seven") == 0) {
+        return '7';
+    } else if (strcmp(str, "eight") == 0) {
+        return '8';
+    } else if (strcmp(str, "nine") == 0) {
+        return '9';
+    } else {
+        return '0';
+    }
+}
+
+void substring(char source[], int start, int length, char destination[]) {
+    int i, j;
+
+    // Copy characters from source to destination
+    for (i = start, j = 0; i < start + length && source[i] != '\0'; i++, j++) {
+        destination[j] = source[i];
+    }
+
+    // Null-terminate the destination string
+    // this I definitely copied from SO
+    destination[j] = '\0';
+}
+
 int main()
 {
     FILE *file_pointer;
     int sum = 0;
     int num = 0;
-    char str[MAX_LINE_LENGTH];
+    char str[MAX_LINE_LENGTH] = "rsmcrqlnhsmjhspseven96vsckknrggbjd4tgtgbkxgvt";
     char line_str[3];
     file_pointer = fopen("input.txt", "r");
 
@@ -42,36 +79,51 @@ int main()
 
     char apparently_valid_digits[][9] = { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
     
+    
     while(fgets(str, MAX_LINE_LENGTH, file_pointer)){
         // fgets(str, MAX_LINE_LENGTH, file_pointer);
-        printf("string: %s\n", str);
+        // printf("string: %s\n", str);
         int size = strlen(str);
         int start = 0;
         int end = size - 1;
         int found_start = 0;
-        int found_end = 0;
-        char first_num;
-        char second_num;
-
 
         for(int j = 0; j <= size; j++){
             // printf("\nchecking these start:%c end: %c \n", str[j], str[size - j] );
-            if(found_start && found_end){
-                break;
-            }
-
-            if(!found_start){
-                if(isdigit(str[j])){
+           
+            if(isdigit(str[j])){
+                if(!found_start){
                     line_str[0] = str[j];
+                    line_str[1] = str[j];
                     found_start = 1;
-                }
-            }
+                    // printf("found a number substring: %c \n", str[j]);
 
-            if(!found_end){
-                if(isdigit(str[size - j])){
-                    line_str[1] = str[size - j];
-                    found_end = 1;
+                } else {
+                    line_str[1] = str[j];
+                    // printf("found a number substring: %c \n", str[j]);
+
                 }
+            } else {
+                char substr[size]; 
+                // if it's not a digit, check if it's a word
+                for(int k = 0; k < 9; k++){
+                    int length_of_word = strlen(apparently_valid_digits[k]);
+
+                    substring(str, j, length_of_word, substr);
+                    // printf("substring: %s word: %s\n\n", substr, apparently_valid_digits[k]);
+                    if(strcmp(substr, apparently_valid_digits[k]) == 0){
+                        if(!found_start){
+                            // printf("found a string substring: %s word: %s\n\n adding it to start", substr, apparently_valid_digits[k]);
+                            line_str[0] = get_number_from_string(apparently_valid_digits[k]);
+                            line_str[1] = get_number_from_string(apparently_valid_digits[k]);
+                            found_start = 1;
+
+                        } else {
+                            // printf("found a string substring: %s word: %s\n\n", substr, apparently_valid_digits[k]);
+                            line_str[1] = get_number_from_string(apparently_valid_digits[k]);
+                        }
+                    }
+                }; 
             }
 
         }
@@ -79,7 +131,6 @@ int main()
         num = atoi(line_str);
 
         sum += num;
-
 
         printf("num:%d \n\n", num);
         count++;
