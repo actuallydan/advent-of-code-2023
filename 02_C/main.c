@@ -17,12 +17,11 @@ int main()
     char comma_tok[1] = ",";
     char space_tok[1] = " ";
 
-    int count = 1;
-    int sum_ids = 0;
+    int sum = 0;
 
-    int most_green_seen = 0;
-    int most_red_seen = 0;
-    int most_blue_seen = 0;
+    int fewest_green_seen = 0;
+    int fewest_red_seen = 0;
+    int fewest_blue_seen = 0;
     
     char* save_game;
     char* save_rounds;
@@ -36,6 +35,7 @@ int main()
     file_pointer = fopen("input.txt", "r");
 
     while(fgets(str, 200, file_pointer)){
+        int power = 0;
 
         if(strcmp(str, "\n") == 0){
             continue;
@@ -68,38 +68,34 @@ int main()
 
                         }
 
-                        if(pull_color == 'g' && pull_count > most_green_seen){
-                            most_green_seen = pull_count;
+                        if(pull_color == 'g' && pull_count > fewest_green_seen){
+                            fewest_green_seen = pull_count;
                         }
-                        if(pull_color == 'b' && pull_count > most_blue_seen){
-                            most_blue_seen = pull_count;
+                        if(pull_color == 'b' && pull_count > fewest_blue_seen){
+                            fewest_blue_seen = pull_count;
                         }
-                        if(pull_color == 'r' && pull_count > most_red_seen){
-                            most_red_seen = pull_count;
+                        if(pull_color == 'r' && pull_count > fewest_red_seen){
+                            fewest_red_seen = pull_count;
                         }
                     }
                 }
             }
         }
 
-        printf("green: %i, red: %i, blue: %i\n", most_green_seen, most_red_seen, most_blue_seen);
+        printf("green: %i, red: %i, blue: %i\n", fewest_green_seen, fewest_red_seen, fewest_blue_seen);
 
-        // -> if no maxes are greater than defined maxes increment sum_ids
-        if(most_green_seen <= NUM_GREEN_CUBES &&
-            most_red_seen <= NUM_RED_CUBES &&
-            most_blue_seen <= NUM_BLUE_CUBES)
-        {
-            sum_ids += count;
-        } 
+        // -> get power of game by multiplying together rgb
+        power = fewest_green_seen * fewest_red_seen * fewest_blue_seen;
 
-        most_green_seen = 0;
-        most_red_seen = 0;
-        most_blue_seen = 0;
+        sum += power;
 
-        count++;
+        fewest_green_seen = 0;
+        fewest_red_seen = 0;
+        fewest_blue_seen = 0;
+        power = 0;
     }
 
-    printf("\nsum %i\n", sum_ids);
+    printf("\nsum %i\n", sum);
 
 
     return 0;
