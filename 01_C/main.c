@@ -71,7 +71,7 @@ int main()
     FILE *file_pointer;
     int sum = 0;
     int num = 0;
-    char str[MAX_LINE_LENGTH] = "rsmcrqlnhsmjhspseven96vsckknrggbjd4tgtgbkxgvt";
+    char str[MAX_LINE_LENGTH];
     char line_str[3];
     file_pointer = fopen("input.txt", "r");
 
