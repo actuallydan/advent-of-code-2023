@@ -38,7 +38,7 @@ Of course, the actual engine schematic is much larger. What is the sum of all of
 int is_special_character(char c){
     char chars[] = {'*', '=', '+', '/', '&', '#', '%', '-', '$', '@'};
     for(int i = 0; i < 10; ++i){
-        if(c == chars[i]){
+        if(c == chars[i] && c != '\0' && c != '\n'){
             return 1;
         }
     }
@@ -86,7 +86,7 @@ int main(){
     int found_item = 0;
 
     for(int i = 0; i < counter; ++i){
-        // check each character in current lineall_lines
+        // check each character in current all_lines
         // printf("%s", all_lines[i]);
         for(int j = 0; j < 140; ++j){
 
@@ -97,13 +97,15 @@ int main(){
             }
 
             if(all_lines[i][j] == '.' || is_special_character(all_lines[i][j]) || all_lines[i][j + 1] == '\n' ) {
+                int should_reduce_cursor_for_edge = all_lines[i][j + 1] == '\n' && isdigit(all_lines[i][j]);
+
                 if(builder_cursor > 0){
                     found_item = 0;
                     // printf("what number are we looking for %s, character: %c\n ", builder, all_lines[i][j]);
                     // printf("my builder is %s and my builder length is %d\n", builder, builder_cursor);
                     // check every character above, adjacent to, and below the builder
                     for(int n = i - 1; n < i + 2; ++n){
-                        for(int k = j - builder_cursor - 1; k < j + 1; ++k){
+                        for(int k = j - builder_cursor - 1 + should_reduce_cursor_for_edge; k < j + 1; ++k){
                             // printf("        checking this character %c @ %i, %i \n", all_lines[n][k], n, k);
 
                             if(n < 0 || k < 0 || n > 139 || k > 139){
@@ -112,7 +114,7 @@ int main(){
 
                             
                             if(is_special_character(all_lines[n][k])){
-                                printf("    found %s - %c @  [%i, %i]\n ", builder, all_lines[n][k], n, k);
+                                printf("    found %s \t %c \t [ %i,\t%i ]\n ", builder, all_lines[n][k], n, k);
                                 sum += atoi(builder);
 
                                 // reset cursor
