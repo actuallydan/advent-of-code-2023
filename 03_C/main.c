@@ -59,6 +59,8 @@ int main(){
     char current_line[300];
     char all_lines[300][300];
 
+    int gear_pairs[150][150][2];
+
     int builder_cursor = 0;
     char builder[3];
 
@@ -96,7 +98,7 @@ int main(){
                 builder_cursor++;
             }
 
-            if(all_lines[i][j] == '.' || is_special_character(all_lines[i][j]) || all_lines[i][j + 1] == '\n' ) {
+            if(all_lines[i][j] == '.' || all_lines[i][j] == '*' || all_lines[i][j + 1] == '\n' ) {
                 int should_reduce_cursor_for_edge = all_lines[i][j + 1] == '\n' && isdigit(all_lines[i][j]);
 
                 if(builder_cursor > 0){
@@ -113,9 +115,17 @@ int main(){
                             } 
 
                             
-                            if(is_special_character(all_lines[n][k])){
+                            if(all_lines[n][k] == '*'){
                                 printf("    found %s \t %c \t [ %i,\t%i ]\n ", builder, all_lines[n][k], n, k);
-                                sum += atoi(builder);
+                                // sum += atoi(builder);
+
+                                int target_number = atoi(builder);
+
+                                if(gear_pairs[n][k][0]){
+                                    gear_pairs[n][k][1] = target_number;
+                                } else {
+                                    gear_pairs[n][k][0] = target_number;
+                                }
 
                                 // reset cursor
                                 found_item = 1;
@@ -139,6 +149,16 @@ int main(){
         builder_cursor = 0;
         memset(builder,0,3);
     }
+
+    for(int i = 0; i < 150; ++i){
+        for(int j = 0; j < 150; ++j){
+            // if there is a number stored in the ""hash""
+            if(gear_pairs[i][j][0] && gear_pairs[i][j][1]){
+                sum += gear_pairs[i][j][0] * gear_pairs[i][j][1];
+            }
+        }
+    }
+    
 
     printf("\ntotal %i \n", sum);
 
