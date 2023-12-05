@@ -27,69 +27,75 @@ Take a seat in the large pile of colorful cards. How many points are they worth 
 #include <ctype.h>
 #include <stdlib.h>
 
-
-void clear_array(int arr[], int size){
-    for(int i = 0; i < size; i++){
+void clear_array(int arr[], int size)
+{
+    for (int i = 0; i < size; i++)
+    {
         arr[i] = 0;
     }
 }
 
-int main(){
+int main()
+{
 
     FILE *file_pointer = NULL;
 
-    file_pointer = fopen("testinput.txt", "r");
+    file_pointer = fopen("input.txt", "r");
     // actual data
-    // int chars_to_first_number = 10;
-    // int num_winning_nums = 10;
-    // int num_to_your_numbers = chars_to_first_number + (num_winning_nums * 3) + 2;
-    // int num_your_numbers = 25;
-    // int length_game_num = 3;
-    // int max_games = 200;
-
-    // // test data
-    int chars_to_first_number = 8;
-    int num_winning_nums = 5;
+    int chars_to_first_number = 10;
+    int num_winning_nums = 10;
     int num_to_your_numbers = chars_to_first_number + (num_winning_nums * 3) + 2;
-    int num_your_numbers = 8;
-    int length_game_num = 1;
-    int max_games = 6;
+    int num_your_numbers = 25;
+    int length_game_num = 3;
+    int max_games = 199;
 
+    // test data
+    // int chars_to_first_number = 8;
+    // int num_winning_nums = 5;
+    // int num_to_your_numbers = chars_to_first_number + (num_winning_nums * 3) + 2;
+    // int num_your_numbers = 8;
+    // int length_game_num = 1;
+    // int max_games = 6;
 
-    if (file_pointer == NULL) {
+    if (file_pointer == NULL)
+    {
         perror("Error opening file");
         return 1;
     }
 
     // each line is 116 characters (adding for safety?)
-    char current_line[200];    
+    char current_line[200];
     char number_str[2];
     char game_str[3];
-    
+
     int sum = 0;
     int matches_count = 0;
-    
 
     // store the winning numbers in this array like a hash table, we'll check that a number is a winner if it = 1 in here
     int winning_numbers[100];
+    clear_array(winning_numbers, 100);
 
     int card_quantities[200];
+    clear_array(card_quantities, 200);
 
-    while(fgets(current_line, sizeof(current_line) / sizeof(current_line[0]), file_pointer) != NULL){
+    while (fgets(current_line, sizeof(current_line) / sizeof(current_line[0]), file_pointer) != NULL)
+    {
+
         // get the game number
-        for(int i = 0; i <  length_game_num; ++i){
+        for (int i = 0; i < length_game_num; ++i)
+        {
             game_str[i] = current_line[i + 5];
         }
 
         int game_num = atoi(game_str);
+        card_quantities[game_num]++;
 
-        printf("Game %i\n", game_num);
+        printf("======================\t GAME:\t%i ======================\n", game_num);
 
-        matches_count = 0;
-
-        printf("winning numbers: \t");
+        printf("\twinning numbers: \t");
         // build the dictionary of winning numbers
-        for(int i = chars_to_first_number; i < chars_to_first_number + num_winning_nums * 3; i+=3){
+        for (int i = chars_to_first_number; i < chars_to_first_number + num_winning_nums * 3; i += 3)
+        {
             number_str[0] = current_line[i];
             number_str[1] = current_line[i + 1];
             printf("%s\t", number_str);
@@ -98,48 +104,47 @@ int main(){
         printf("\n");
 
         memset(number_str, 0, 2);
-        
-        printf("matching numbers: \t");
 
-        // // grab each 2 digit number, then move an additional space to get the next
-        for(int i = num_to_your_numbers; i < num_to_your_numbers + num_your_numbers * 3; i += 3){
+        printf("\tmatching numbers: \t");
+
+        // grab each 2 digit number, then move an additional space to get the next
+        for (int i = num_to_your_numbers; i < num_to_your_numbers + num_your_numbers * 3; i += 3)
+        {
             number_str[0] = current_line[i];
             number_str[1] = current_line[i + 1];
 
             int my_number = atoi(number_str);
 
-            if(winning_numbers[my_number]){
+            if (winning_numbers[my_number])
+            {
                 printf("%s\t", number_str);
                 matches_count++;
             }
         }
+
         printf("\n");
-        printf(" total matches on this card: \t%i \n\n", matches_count);
+        printf("\ttotal matches on this card: \t%i \n\n", matches_count);
         printf("---\n");
-        printf("---\n");
 
-        // increment each card count after this one for each match
-        for(int i = 0; i < matches_count; ++i){
-            int game_index = game_num + 1 + i;
-            if(game_num + 1 + i < max_games){
-                printf("you won an additional \t%i\n", game_index);
-                card_quantities[game_index]++;
-            }
-        }
+        // for each copy of current card, add a subsequent card for every match
+        // if the current card is card #2, and there are 3  #2 cards, and card #2 has 4 matches
+        // we would add 1 #3 card, 1 #4 card, 1 #5 card, and 1 #6 card for each #2 card
+        printf("\tThere are %i copies of card \t%i, adding won cards\n", card_quantities[game_num], game_num);
+        for (int i = 0; i < card_quantities[game_num]; ++i)
+        {
+            for (int i = 1; i < matches_count + 1; ++i)
+            {
+                int game_index = game_num + i;
 
-        // repeat above loop for each quantity on the current card beyond what we
-        for(int i = 0; i < card_quantities[game_num]; ++i){
-            for(int j = 0; j < matches_count; ++j){
-                int game_index = game_num + 1 + j;
-
-                if(game_num + 1 + j < max_games){
+                if (game_index <= max_games)
+                {
+                    // printf("\t\tyou won an additional \t%i\n", game_index);
                     card_quantities[game_index]++;
                 }
             }
         }
-
-        // finally, increment the card we're on now that we're done with it
-        card_quantities[game_num]++;
+        printf("---\n");
+        printf("---\n");
 
         memset(number_str, 0, 2);
         clear_array(winning_numbers, 100);
@@ -147,8 +152,11 @@ int main(){
     }
 
     // sum total cards
-    for(int i = 1; i < max_games; ++i){
+    for (int i = 1; i <= max_games; ++i)
+    {
+        printf("there are %i cards from game %i\n", card_quantities[i], i);
         printf("adding %i #%i cards\n", card_quantities[i], i);
+
         sum += card_quantities[i];
     }
 
