@@ -38,11 +38,23 @@ int main(){
 
     FILE *file_pointer = NULL;
 
-    file_pointer = fopen("input.txt", "r");
-    int chars_to_first_number = 10;
-    int num_winning_nums = 10;
+    file_pointer = fopen("testinput.txt", "r");
+    // actual data
+    // int chars_to_first_number = 10;
+    // int num_winning_nums = 10;
+    // int num_to_your_numbers = chars_to_first_number + (num_winning_nums * 3) + 2;
+    // int num_your_numbers = 25;
+    // int length_game_num = 3;
+    // int max_games = 200;
+
+    // // test data
+    int chars_to_first_number = 8;
+    int num_winning_nums = 5;
     int num_to_your_numbers = chars_to_first_number + (num_winning_nums * 3) + 2;
-    int num_your_numbers = 25;
+    int num_your_numbers = 8;
+    int length_game_num = 1;
+    int max_games = 6;
+
 
     if (file_pointer == NULL) {
         perror("Error opening file");
@@ -52,17 +64,28 @@ int main(){
     // each line is 116 characters (adding for safety?)
     char current_line[200];    
     char number_str[2];
-
+    char game_str[3];
+    
     int sum = 0;
-    int points_per_game = 0;
+    int matches_count = 0;
     
 
     // store the winning numbers in this array like a hash table, we'll check that a number is a winner if it = 1 in here
     int winning_numbers[100];
 
+    int card_quantities[200];
 
     while(fgets(current_line, sizeof(current_line) / sizeof(current_line[0]), file_pointer) != NULL){
-        points_per_game = 0;
+        // get the game number
+        for(int i = 0; i <  length_game_num; ++i){
+            game_str[i] = current_line[i + 5];
+        }
+
+        int game_num = atoi(game_str);
+
+        printf("Game %i\n", game_num);
+
+        matches_count = 0;
 
         printf("winning numbers: \t");
         // build the dictionary of winning numbers
@@ -85,29 +108,51 @@ int main(){
 
             int my_number = atoi(number_str);
 
-            // if our number exists in the winning array, calculate points
             if(winning_numbers[my_number]){
                 printf("%s\t", number_str);
-                if(points_per_game == 0){
-                    points_per_game++;
-                } else {
-                    points_per_game = points_per_game * 2;
-                }
+                matches_count++;
             }
         }
         printf("\n");
-        printf(" total points for this game: \t%i \n\n", points_per_game);
+        printf(" total matches on this card: \t%i \n\n", matches_count);
         printf("---\n");
         printf("---\n");
 
-        sum += points_per_game;
+        // increment each card count after this one for each match
+        for(int i = 0; i < matches_count; ++i){
+            int game_index = game_num + 1 + i;
+            if(game_num + 1 + i < max_games){
+                printf("you won an additional \t%i\n", game_index);
+                card_quantities[game_index]++;
+            }
+        }
+
+        // repeat above loop for each quantity on the current card beyond what we
+        for(int i = 0; i < card_quantities[game_num]; ++i){
+            for(int j = 0; j < matches_count; ++j){
+                int game_index = game_num + 1 + j;
+
+                if(game_num + 1 + j < max_games){
+                    card_quantities[game_index]++;
+                }
+            }
+        }
+
+        // finally, increment the card we're on now that we're done with it
+        card_quantities[game_num]++;
 
         memset(number_str, 0, 2);
         clear_array(winning_numbers, 100);
-        points_per_game = 0;
+        matches_count = 0;
     }
 
-    printf("this is the sum of points %d\n", sum);
+    // sum total cards
+    for(int i = 1; i < max_games; ++i){
+        printf("adding %i #%i cards\n", card_quantities[i], i);
+        sum += card_quantities[i];
+    }
+
+    printf("this is the sum of cards %d\n", sum);
 
     return 0;
 }
